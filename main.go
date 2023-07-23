@@ -22,7 +22,7 @@ func main() {
 
 	args := os.Args
 	if len(args) == 1 {
-		fmt.Println("Didnt recive input from cli considering stdin")
+		fmt.Println("Didnt recive input filename considering stdin")
 	}
 	fileName := ""
 	pwd, _ := os.Getwd()
