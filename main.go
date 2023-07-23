@@ -29,19 +29,19 @@ func main() {
 	for _, arg := range args {
 		if arg == "-c" {
 			count = true
-			break
+			continue
 		}
 		if arg == "-l" {
 			lines = true
-			break
+			continue
 		}
 		if arg == "-w" {
 			wordcount = true
-			break
+			continue
 		}
 		if arg == "-m" {
 			charcount = true
-			break
+			continue
 		}
 	}
 	if !count && !lines && !wordcount {
