@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	count      bool
-	lines      bool
+	sizeFlag   bool
+	linecount  bool
 	wordcount  bool
-	charcount bool
+	charcount  bool
 	fileroute  bool
 	stdinroute bool
 )
@@ -26,13 +26,15 @@ func main() {
 	}
 	fileName := ""
 	pwd, _ := os.Getwd()
+
+	//to-do this can be done with flag package as well.
 	for _, arg := range args {
 		if arg == "-c" {
-			count = true
+			sizeFlag = true
 			continue
 		}
 		if arg == "-l" {
-			lines = true
+			linecount = true
 			continue
 		}
 		if arg == "-w" {
@@ -44,35 +46,30 @@ func main() {
 			continue
 		}
 	}
-	if !count && !lines && !wordcount {
-		count = true
-		lines = true
+	if !sizeFlag && !linecount && !wordcount && !charcount {
+		sizeFlag = true
+		linecount = true
 		wordcount = true
 	}
-	if len(args) > 1 {
-		fileName = args[len(args)-1]
-		if fileName != "" && strings.Contains(fileName, ".txt") {
-			filePath := filepath.Join(pwd, fileName)
-			file, err := os.Open(filePath)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer file.Close()
-
-			stats, err := os.Stat(fileName)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			if count {
-				log.Printf("size of file,%d", stats.Size())
-			}
-			scanner := bufio.NewScanner(file)
-			GenerateWcAndLines(scanner)
-			fileroute = true
-		} else {
-			log.Println("Please input the file name")
+	fileName = args[len(args)-1]
+	if fileName != "" && strings.Contains(fileName, ".txt") {
+		filePath := filepath.Join(pwd, fileName)
+		file, err := os.Open(filePath)
+		if err != nil {
+			log.Fatal(err)
 		}
+		defer file.Close()
+
+		stats, err := os.Stat(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if sizeFlag {
+			log.Printf("size of file,%d", stats.Size())
+		}
+		scanner := bufio.NewScanner(file)
+		GenerateWcAndLines(scanner)
+		fileroute = true
 	} else {
 		scanner := bufio.NewScanner(os.Stdin)
 		stdinroute = true
@@ -87,28 +84,28 @@ func GenerateWcAndLines(scanner *bufio.Scanner) {
 	wc := 0
 	size := 0
 	cc := 0
-	if lines {
-		lines := 0
-		for scanner.Scan() {
-			if stdinroute {
-				size += len(scanner.Bytes())
-			}
-			line := scanner.Text()
-			if line  == "stop reading"{
-				break
-			}
-			cc+=strings.Count(line,"")
-	
-			x := strings.Split(scanner.Text(), " ")
-			wc += len(x)
-			lines++
+
+	lines := 0
+	for scanner.Scan() {
+		if stdinroute {
+			size += len(scanner.Bytes())
 		}
-		if count && stdinroute{
-			log.Printf("Size of file,%d", size)
+		line := scanner.Text()
+		if line == "stop reading" {
+			break
 		}
+		cc += strings.Count(line, "")
+		x := strings.Split(scanner.Text(), " ")
+		wc += len(x)
+		lines++
+	}
+	if sizeFlag && stdinroute {
+		log.Printf("Size of file,%d", size)
+	}
+	if linecount {
 		log.Printf("No of lines,%d", lines)
 	}
-	if charcount{
+	if charcount {
 		log.Printf("No of chars,%d", cc)
 	}
 	if wordcount {
